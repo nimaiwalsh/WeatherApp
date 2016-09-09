@@ -3,81 +3,82 @@ var lat;
 var long;
 
 $(document).ready(function() {
-    
+
   //Disable cache to ensure updates
-  $.ajaxSetup({ cache: false });  
-    
+  $.ajaxSetup({
+    cache: false
+  });
+
   //getCurrentPosition on page load
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(showPosition);
   } else {
     alert("Geolocation not supported by your browser.");
   }
-    
+
   // Search for weather manually
   $("#locationBtn").on("click", function(e) {
     e.preventDefault();
-    $("#message").hide();  
-    var value = $("#locationInput").val();
-      
-    if (value == "") {
-        $("#message").html('Please enter a city').show();
-    } else {
-        url = "https://crossorigin.me/http://api.openweathermap.org/data/2.5/weather?q=" + value + "&appid=99ccd40e0a5fc26b95eb7d6d3ebeacd7&units=metric";
-        getData();
-    }  
-        
-  });
+    var value = $("#locationInput").val();  
+    $("#message").hide();
+    //Revert to Celcius  
+    $("#tempConvert").html('&#8457;');
+    $("#tempScale").html('&#8451;');
     
+    if (value === "") {
+      $("#message").html('Please enter a city').show();
+    } else {
+      url = "https://crossorigin.me/http://api.openweathermap.org/data/2.5/weather?q=" + value + "&appid=99ccd40e0a5fc26b95eb7d6d3ebeacd7&units=metric";
+      getData();
+    }
+
+  });
+
 });
-  
+
+//Assign the current position into variables and build API url
 function showPosition(pos) {
-    lat = pos.coords.latitude;
-    long = pos.coords.longitude;
-    url = "https://crossorigin.me/http://api.openweathermap.org/data/2.5/weather?lat=" + lat + "&lon=" + long + "&appid=99ccd40e0a5fc26b95eb7d6d3ebeacd7&units=metric";
-    getData();
+  lat = pos.coords.latitude;
+  long = pos.coords.longitude;
+  url = "https://crossorigin.me/http://api.openweathermap.org/data/2.5/weather?lat=" + lat + "&lon=" + long + "&appid=99ccd40e0a5fc26b95eb7d6d3ebeacd7&units=metric";
+  getData();
 }
 
 //Retrieve the API weather data and display in the app  
 function getData() {
-    var summary;
-    var temp;
-    var icon;
-    var location;
-    var humidity;
-    var pressure;
-    
-    $("#loading").show();
-    $("article").hide();
-    
-    $.getJSON( url, function(data) {
-        location = data.name;
-        summary = data.weather[0].description;
-        temp = (Math.round(data.main.temp * 10) / 10).toFixed(1);
-        icon = data.weather[0].icon;  
-        humidity = data.main.humidity;
-        pressure = data.main.pressure;
+  var summary;
+  var temp;
+  var icon;
+  var location;
+  var humidity;
+  var pressure;
+
+  $("#loading").show();
+  $("article").hide();
+
+  $.getJSON(url, function(data) {
+      location = data.name;
+      summary = data.weather[0].description;
+      temp = (Math.round(data.main.temp * 10) / 10).toFixed(1);
+      icon = data.weather[0].icon;
+      humidity = data.main.humidity;
+      pressure = data.main.pressure;
     })
     .done(function() {
       //Hide loading sign and show data    
       $("#loading").hide();
-      $("#message").hide();    
+      $("#message").hide();
       $("article").show();
-                      
+
       //Populate data
-      $("#location").html('<i class="icon ion-location"></i>' + location);
-      $("#temp").html('<i class="wi wi-thermometer"></i>' + temp + '\u2103');
+      $("#locationData").html(location);
+      $("#tempData").html(temp);
       $("#conditions").html(summary);
-      $("#humidity").html('<i class="wi wi-humidity"></i>' + humidity + '%');
-      $("#pressure").html('<i class="wi wi-barometer"></i>' + pressure + 'hPa');
-        
-      //Convert temperature between celcius and fahrenheight    
-      $("#temp-convert").on("click", function() {
-        alert(temp);
-      });
-        
+      $("#humidityData").html(humidity);
+      $("#pressureData").html(pressure);
+
       //Change Icons    
-      switch(icon) {
+      switch (icon) {
         case '01d':
           $("#icon").attr("class", "wi wi-day-sunny");
           break;
@@ -100,7 +101,7 @@ function getData() {
         case '04n':
           $("#icon").attr("class", "wi wi-cloud");
           break;
-        case '09d': 
+        case '09d':
         case '09n':
           $("#icon").attr("class", "wi wi-rain");
           break;
@@ -123,12 +124,27 @@ function getData() {
           $("#icon").attr("class", "wi wi-night-alt-snow");
       }
     })
+    //Display error message if data cannot be retrieved
     .fail(function() {
-        $("#loading").hide();
-        $("#message").show();
-        $("#message").html("Sorry, there was an error retrieving your weather data");
+      $("#loading").hide();
+      $("#message").show();
+      $("#message").html("Sorry, there was an error retrieving your weather data");
     })
+
+  //Convert temperature between celcius and fahrenheight    
+  var degrees = true;
+
+  $("#tempConvert").on("click", function() {
+    if (degrees) {
+      $("#tempData").html((temp * 9 / 5 + 32).toFixed(1));
+      $("#tempConvert").html('&#8451;');
+      $("#tempScale").html('&#8457;');
+      degrees = false;
+    } else {
+      $("#tempData").html(temp);
+      $("#tempConvert").html('&#8457;');
+      $("#tempScale").html('&#8451;');
+      degrees = true;
+    }
+  });
 }
-
-
-
