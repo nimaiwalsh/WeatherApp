@@ -28,7 +28,7 @@ $(document).ready(function() {
     if (value === "") {
       $("#message").html('Please enter a city').show();
     } else {
-      url = "http://api.openweathermap.org/data/2.5/weather?q=" + value + "&appid=99ccd40e0a5fc26b95eb7d6d3ebeacd7&units=metric";
+      url = "https://crossorigin.me/http://api.openweathermap.org/data/2.5/weather?q=" + value + "&appid=99ccd40e0a5fc26b95eb7d6d3ebeacd7&units=metric";
       getData();
     }
 
@@ -40,7 +40,7 @@ $(document).ready(function() {
 function showPosition(pos) {
   lat = pos.coords.latitude;
   long = pos.coords.longitude;
-  url = "http://api.openweathermap.org/data/2.5/weather?lat=" + lat + "&lon=" + long + "&appid=99ccd40e0a5fc26b95eb7d6d3ebeacd7&units=metric";
+  url = "https://crossorigin.me/http://api.openweathermap.org/data/2.5/weather?lat=" + lat + "&lon=" + long + "&appid=99ccd40e0a5fc26b95eb7d6d3ebeacd7&units=metric";
   getData();
 }
 
